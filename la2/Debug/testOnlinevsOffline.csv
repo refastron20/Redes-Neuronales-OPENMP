@@ -1,0 +1,5 @@
+Dataset, Nº iterations, Layers, Nº neurons, eta, mu, Validation Ratio, Decrement Factor,Error Function, Output Function, mode, ,Average test error, Average train error, CCR Test, CCR Train
+xor ,500,1,16, 0.7,1, 0.0,1, MSE, softmax ,offline, ,0.00232428,0.00232428,100,100
+xor ,500,1,16, 0.7,1, 0.0,1, MSE, softmax ,online, ,0.000366883,0.000366883,100,100
+divorce ,500,1,2, 0.8,1, 0.0,1, MSE, softmax ,offline, ,0.0205393,0.00229119,97.6744,100
+divorce ,500,1,2, 0.8,1, 0.0,1, MSE, softmax ,online, ,0.0228867,7.7513e-06,97.6744,100
