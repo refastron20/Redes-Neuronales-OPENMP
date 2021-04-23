@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/MultilayerPerceptron.cpp
+MultilayerPerceptron.h
+/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/MultilayerPerceptron.h
+util.h
+/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/util.h
+iostream
+-
+fstream
+-
+sstream
+-
+string
+-
+cstdlib
+-
+limits
+-
+math.h
+-
+omp.h
+-
+
+/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/MultilayerPerceptron.h
+
+/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/util.h
+
