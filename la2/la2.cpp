@@ -154,15 +154,15 @@ int main(int argc, char **argv) {
     double t_ini = omp_get_wtime();
     int segmento = 1;
     int i;
-    //omp_set_num_threads(5);
-    //#pragma omp parallel for private(i)
+    omp_set_num_threads(ntest);
+    #pragma omp parallel for private(i)
   		for( i=0; i<ntest; i++){
   			/*cout << "**********" << endl;
   			cout << "SEED " << seeds[i] << endl;
   			cout << "**********" << endl;*/
   			srand(seeds[i]);
   			mlp[i].runBackPropagation(trainDataset,testDataset,maxIter,&(trainErrors[i]),&(testErrors[i]),&(trainCCRs[i]),&(testCCRs[i]),&(count[i]), i);
-        std::cout << "Hilo["<<i<<"]" << '\n'
+        std::cout << "semilla["<<i<<"]" << '\n'
   			 << "We end!! => Final test CCR: " << testCCRs[i] << '\n'
          << " We end!! => Final train CCR: " << trainCCRs[i] << endl;
   		}

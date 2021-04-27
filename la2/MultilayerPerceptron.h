@@ -91,6 +91,8 @@ private:
 
 	void feedInputsOriginal(double* input);
 	void forwardPropagateOriginal();
+	void sumNetworks();
+	void copyOriginalToCopys();
 
 
 public:

@@ -64,12 +64,12 @@ int MultilayerPerceptron::initialize(int nl, int npl[], int nTh) {
 	int i;
 	for (int n = 0; n < nThreads; n++) {
 		copys[n] = new Layer[nl];
-		//#pragma omp parallel for private(i)
+		#pragma omp parallel for private(i)
 		for (i = 0; i < nl; i++) {
 			copys[n][i].nOfNeurons = npl[i];
 			copys[n][i].neurons = new Neuron[npl[i]];
 		}
-		//#pragma omp parallel for private(i)
+		#pragma omp parallel for private(i)
 		for (i = 1; i < nl - 1; i++) {
 			for (int j = 0; j < copys[n][i].nOfNeurons; j++) {
 				copys[n][i].neurons[j].w = new double[copys[n][i-1].nOfNeurons +1];
@@ -134,7 +134,6 @@ MultilayerPerceptron::~MultilayerPerceptron() {
 // ------------------------------
 // Free memory for the data structures
 void MultilayerPerceptron::freeMemory() {
-	std::cerr << "aqui2" << '\n';
 	for (int n = 0; n < nThreads; n++) {
 		delete[] copys[n][0].neurons;
 		int i;
@@ -245,7 +244,7 @@ void MultilayerPerceptron::forwardPropagateOriginal() {
 	double sumNet = 0;
 	int j;
 	for (int i = 1; i < nOfLayers-1; i++) {
-		#pragma omp parallel for private(j)
+		//#pragma omp parallel for private(j)
 		for (j = 0; j < layers[i].nOfNeurons; j++) {
 			layers[i].neurons[j].net = 0;
 			layers[i].neurons[j].net += layers[i].neurons[j].w[0];
@@ -275,7 +274,7 @@ void MultilayerPerceptron::forwardPropagate(int n) {
 	double sumNet = 0;
 	int j;
 	for (int i = 1; i < nOfLayers-1; i++) {
-		#pragma omp parallel for private(j)
+		//#pragma omp parallel for private(j)
 		for (j = 0; j < copys[n][i].nOfNeurons; j++) {
 			copys[n][i].neurons[j].net = 0;
 			copys[n][i].neurons[j].net += copys[n][i].neurons[j].w[0];
@@ -335,7 +334,7 @@ void MultilayerPerceptron::backpropagateError(double* target, int n) {
 	for (int i = nOfLayers-2; i > 0 ; i--) {
 		double sumVec[copys[n][i].nOfNeurons];
 		int j;
-		#pragma omp parallel for private(j)
+		//#pragma omp parallel for private(j)
 		for (j = 0; j < copys[n][i].nOfNeurons; j++) {
 			sumVec[j] = 0;
 			for (int k = 0; k < copys[n][i+1].nOfNeurons; k++) {
@@ -353,7 +352,7 @@ void MultilayerPerceptron::backpropagateError(double* target, int n) {
 void MultilayerPerceptron::accumulateChange(int n) {
 	for (int i = 1; i < nOfLayers; i++) {
 		int j;
-		#pragma omp parallel for private(j)
+		//#pragma omp parallel for private(j)
 		for (j = 0; j < copys[n][i].nOfNeurons; j++) {
 			if (copys[n][i].neurons[j].deltaW != NULL) {
 				for (int k = 1; k < copys[n][i-1].nOfNeurons+1; k++) {
@@ -381,7 +380,7 @@ void MultilayerPerceptron::weightAdjustment() {
 			if (layers[i].neurons[j].w != NULL) {
 				int k;
 				//TODO probar con mas grandes
-				//#pragma omp parallel for private(k)
+				#pragma omp parallel for private(k)
 				for (k = 1; k < layers[i-1].nOfNeurons+1; k++) {
 					layers[i].neurons[j].w[k] = layers[i].neurons[j].w[k] - ((etaPerLayer * layers[i].neurons[j].deltaW[k])/N) - ((mu * (etaPerLayer * layers[i].neurons[j].lastDeltaW[k]))/N);
 				}
@@ -407,7 +406,7 @@ void MultilayerPerceptron::weightAdjustmentOnline(int n) {
 			if (copys[n][i].neurons[j].w != NULL) {
 				int k;
 				//TODO probar con mas grandes
-				//#pragma omp parallel for private(k)
+				#pragma omp parallel for private(k)
 				for (k = 1; k < copys[n][i-1].nOfNeurons+1; k++) {
 					copys[n][i].neurons[j].w[k] = copys[n][i].neurons[j].w[k] - ((etaPerLayer * copys[n][i].neurons[j].deltaW[k])/N) - ((mu * (etaPerLayer * copys[n][i].neurons[j].lastDeltaW[k]))/N);
 				}
@@ -515,17 +514,56 @@ Dataset* MultilayerPerceptron::readData(const char *fileName) {
 	return data;
 }
 
+void MultilayerPerceptron::sumNetworks(){
+	for (int n = 0; n < nThreads; n++) {
+		for (int i = 1; i < nOfLayers; i++) {
+			int j;
+			#pragma omp parallel for private(j)
+			for (j = 0; j < layers[i].nOfNeurons; j++) {
+				for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
+					if (layers[i].neurons[j].deltaW != NULL) {
+						layers[i].neurons[j].deltaW[k] += copys[n][i].neurons[j].deltaW[k];
+					}
+				}
+			}
+		}
+	}
+}
+
+void MultilayerPerceptron::copyOriginalToCopys(){
+	int n;
+	#pragma omp parallel for private(n)
+	for (n = 0; n < nThreads; n++) {
+		for (int i = 1; i < nOfLayers; i++) {
+			for (int j = 0; j < layers[i].nOfNeurons; j++) {
+				copys[n][i].neurons[j].out = layers[i].neurons[j].out;
+				for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
+					if (layers[i].neurons[j].deltaW != NULL) {
+						copys[n][i].neurons[j].deltaW[k] = layers[i].neurons[j].deltaW[k];
+						copys[n][i].neurons[j].w[k] = layers[i].neurons[j].w[k];
+						copys[n][i].neurons[j].wCopy[k] = layers[i].neurons[j].wCopy[k];
+						copys[n][i].neurons[j].lastDeltaW[k] = layers[i].neurons[j].lastDeltaW[k];
+					}
+				}
+			}
+		}
+	}
+}
+
 
 // ------------------------------
 // Train the network for a dataset (one iteration of the external loop)
 
 void MultilayerPerceptron::train(Dataset* trainDataset) {
 	if (!online) {
-		for (int i = 1; i < nOfLayers; i++) {
-			for (int j = 0; j < layers[i].nOfNeurons; j++) {
-				for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
-					if (layers[i].neurons[j].deltaW != NULL) {
-						layers[i].neurons[j].deltaW[k] = 0;
+		for (int n = 0; n < nThreads; n++) {
+			for (int i = 1; i < nOfLayers; i++) {
+				for (int j = 0; j < layers[i].nOfNeurons; j++) {
+					for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
+						if (layers[i].neurons[j].deltaW != NULL) {
+							copys[n][i].neurons[j].deltaW[k] = 0;
+							layers[i].neurons[j].deltaW[k] = 0;
+						}
 					}
 				}
 			}
@@ -534,16 +572,17 @@ void MultilayerPerceptron::train(Dataset* trainDataset) {
 
 	//idea v2 bucle de hilos y cuando todos terminan se hace el weightAdjustment asi es semioffline o semionline
 	//idea para semi-online
-	int j;
+	int j, i;
 	int patronesPorHilo = trainDataset->nOfPatterns/nThreads;
-	for(int i=0; i<trainDataset->nOfPatterns; i+=patronesPorHilo){
-		omp_set_num_threads(nThreads);
-		#pragma omp parallel for private(j)
-		for (j = i; j < i+patronesPorHilo; j++) {
-			performEpoch(trainDataset->inputs[j], trainDataset->outputs[j], j/patronesPorHilo);
+	copyOriginalToCopys();
+	omp_set_num_threads(nThreads);
+	#pragma omp parallel for private(i,j)
+	for(i=0; i<nThreads; i++){
+		for (j = i*patronesPorHilo; j < (i*patronesPorHilo)+patronesPorHilo; j++) {
+			performEpoch(trainDataset->inputs[j], trainDataset->outputs[j], i);
 		}
-		weightAdjustment();
 	}
+	sumNetworks();
 
 	//paralelizar si offline
 	/*for(int i=0; i<trainDataset->nOfPatterns; i++){

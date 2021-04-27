@@ -4,9 +4,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/MultilayerPerceptron.cpp" "/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/build/CMakeFiles/la2.dir/MultilayerPerceptron.cpp.o"
-  "/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/la2.cpp" "/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/build/CMakeFiles/la2.dir/la2.cpp.o"
-  "/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/util.cpp" "/home/rafa/Escritorio/GitHub/Trabajo-AP/la2/build/CMakeFiles/la2.dir/util.cpp.o"
+  "/home/rafa/Escritorio/GitHub/Redes-Neuronales-OPENMP/la2/MultilayerPerceptron.cpp" "/home/rafa/Escritorio/GitHub/Redes-Neuronales-OPENMP/la2/build/CMakeFiles/la2.dir/MultilayerPerceptron.cpp.o"
+  "/home/rafa/Escritorio/GitHub/Redes-Neuronales-OPENMP/la2/la2.cpp" "/home/rafa/Escritorio/GitHub/Redes-Neuronales-OPENMP/la2/build/CMakeFiles/la2.dir/la2.cpp.o"
+  "/home/rafa/Escritorio/GitHub/Redes-Neuronales-OPENMP/la2/util.cpp" "/home/rafa/Escritorio/GitHub/Redes-Neuronales-OPENMP/la2/build/CMakeFiles/la2.dir/util.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
