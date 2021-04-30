@@ -161,7 +161,8 @@ int main(int argc, char **argv) {
   			cout << "SEED " << seeds[i] << endl;
   			cout << "**********" << endl;*/
   			srand(seeds[i]);
-  			mlp[i].runBackPropagation(trainDataset,testDataset,maxIter,&(trainErrors[i]),&(testErrors[i]),&(trainCCRs[i]),&(testCCRs[i]),&(count[i]), i);
+  			mlp[i].runBackPropagation(trainDataset,testDataset,maxIter,&(trainErrors[i]),
+        &(testErrors[i]),&(trainCCRs[i]),&(testCCRs[i]),&(count[i]), i);
         std::cout << "semilla["<<i<<"]" << '\n'
   			 << "We end!! => Final test CCR: " << testCCRs[i] << '\n'
          << " We end!! => Final train CCR: " << trainCCRs[i] << endl;
